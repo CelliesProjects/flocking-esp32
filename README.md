@@ -1,7 +1,9 @@
 # ESP32 LovyanGFX Flocking Simulation
 
-A real-time **boids / flocking simulation** running on an **ESP32-S3** with a touch UI, rendered using **LovyanGFX**.  
+A real-time **boids / flocking simulation** running on an **800x480 [8048S070 RGB panel](https://esp3d.io/ESP3D-TFT/Version_1.X/hardware/esp32-s3/sunton-70-8048/)** with a touch UI, rendered using **LovyanGFX**.  
 The simulation is interactive: you can add boids by touching the screen and tune the flocking parameters live via sliders.
+
+![screenshot](https://github.com/user-attachments/assets/23f05aa0-85c7-4808-9390-8074222d4059)
 
 This project is inspired by and conceptually based on the **Processing Flocking example**:
 
@@ -35,7 +37,7 @@ Despite the simplicity of these rules, the group exhibits complex, lifelike moti
 ## Hardware
 
 Tested on:
-- **ESP32-S3** with a 800×480 RGB display (8048S050 panel)
+- **ESP32-S3** on a 800×480 [8048S070 RGB panel](https://esp3d.io/ESP3D-TFT/Version_1.X/hardware/esp32-s3/sunton-70-8048/)
 - Capacitive touch
 
 ---
@@ -45,7 +47,6 @@ Tested on:
 - PlatformIO
 - Arduino framework (ESP32)
 - LovyanGFX
-- C++17
 
 ---
 
@@ -71,8 +72,6 @@ This project is inspired by the Processing example:
 
 The original idea and behavior model come from:
 - Craig Reynolds — *“Flocks, Herds, and Schools: A Distributed Behavioral Model”*
-
-This implementation is an independent embedded adaptation.
 
 ---
 
