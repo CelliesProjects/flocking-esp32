@@ -1,7 +1,9 @@
 #include <Arduino.h>
+#include <SD.h>
 
 #include "LGFX_ESP32_8048S050C.hpp"
 #include <LovyanGFX.hpp>
+#include <ScreenShot.hpp>
 
 #include "Boid.hpp"
 #include "Flock.hpp"
@@ -22,7 +24,7 @@ struct Slider
 };
 
 Slider sepSlider = {20, 160, 210, 14, 0.0f, 10.0f, swarm.sepWeight, "Separation weight"};
-Slider aliSlider = {20, 220, 210, 14, 0.0f, 3.0f, swarm.aliWeight, "Alignment weight"};
+Slider aliSlider = {20, 220, 210, 14, 0.0f, 10.0f, swarm.aliWeight, "Alignment weight"};
 Slider cohSlider = {20, 280, 210, 14, 0.0f, 10.0f, swarm.cohWeight, "Cohesion weight"};
 
 struct Button
@@ -131,6 +133,22 @@ void handleTouch(lgfx::touch_point_t &tp)
                               random(0, simSprite.height()));
             changed = true;
         }
+        else if (uiTy < 40)
+        {
+            ScreenShot sShot;
+            String error;
+            gfx.setTextDatum(CC_DATUM);
+            if (!sShot.saveBMP("/screenshot.bmp", gfx, SD, error))
+            {
+                gfx.fillRect(480, 0, 320, 40, TFT_BLACK);
+                gfx.drawCenterString(error, 480 + 160, 20, &DejaVu12);
+            }
+            else
+            {
+                gfx.fillRect(480, 0, 320, 40, TFT_BLACK);
+                gfx.drawCenterString("Screenshot saved!", 480 + 160, 20, &DejaVu12);
+            }
+        }
     }
 
     if (changed)
@@ -141,6 +159,9 @@ void setup()
 {
     Serial.begin(115200);
 
+    SPI.begin(SD_SCK, SD_MISO, SD_MOSI);
+    bool sdStarted = SD.begin(SD_SS);
+
     gfx.setRotation(0);
     gfx.setBrightness(110);
     if (!gfx.begin())
@@ -148,6 +169,15 @@ void setup()
         log_e("Failed to init gfx!");
         while (true)
             delay(100);
+    }
+
+    if (!sdStarted)
+    {
+        gfx.drawCenterString("Could not mount SD. Tap to continue.", gfx.width() / 2, gfx.height() / 2, &DejaVu18);
+
+        lgfx::touch_point_t tp;
+        while (!gfx.getTouch(&tp))
+            delay(10);
     }
 
     simSprite.setPsram(true);
