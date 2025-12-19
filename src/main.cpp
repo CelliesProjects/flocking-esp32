@@ -5,13 +5,12 @@
 #include <LovyanGFX.hpp>
 #include <ScreenShot.hpp>
 
-#include "Boid.hpp"
 #include "Flock.hpp"
 
-static LGFX gfx;
-static LGFX_Sprite simSprite(&gfx);
-static LGFX_Sprite uiSprite(&gfx);
-static bool uiDirty = true;
+LGFX gfx;
+LGFX_Sprite simSprite(&gfx);
+LGFX_Sprite uiSprite(&gfx);
+bool uiDirty = true;
 
 static Flock swarm;
 
@@ -36,36 +35,36 @@ struct Button
 Button clearButton = {20, 330, 280, 50, "Clear all Boids"};
 Button resetButton = {20, 400, 280, 50, "Restart simulation"};
 
-void drawButton(LovyanGFX &spr, Button &b)
+void drawButton(LovyanGFX &dest, Button &b)
 {
-    spr.fillRect(b.x, b.y, b.w, b.h, TFT_LIGHTGREY);
-    spr.setTextColor(TFT_BLACK);
-    spr.setTextDatum(CC_DATUM);
-    spr.drawCenterString(b.label, b.x + (b.w / 2), b.y + (b.h / 2) - (DejaVu18.yAdvance / 2), &DejaVu18);
+    dest.fillRect(b.x, b.y, b.w, b.h, TFT_LIGHTGREY);
+    dest.setTextColor(TFT_BLACK);
+    dest.setTextDatum(CC_DATUM);
+    dest.drawCenterString(b.label, b.x + (b.w / 2), b.y + (b.h / 2) - (DejaVu18.yAdvance / 2), &DejaVu18);
 }
 
-void drawSlider(LGFX_Sprite &spr, Slider &s)
+void drawSlider(LGFX_Sprite &dest, Slider &s)
 {
     // Label
-    spr.setTextDatum(TL_DATUM);
-    spr.setTextColor(TFT_WHITE);
-    spr.drawString(s.label, s.x, s.y - 25, &DejaVu18);
+    dest.setTextDatum(TL_DATUM);
+    dest.setTextColor(TFT_WHITE);
+    dest.drawString(s.label, s.x, s.y - 25, &DejaVu18);
 
     // Track
-    spr.fillRect(s.x, s.y, s.w, s.h, TFT_LIGHTGREY);
+    dest.fillRect(s.x, s.y, s.w, s.h, TFT_LIGHTGREY);
 
     // Filled part
     int fillW = (int)((s.value - s.minVal) / (s.maxVal - s.minVal) * s.w);
-    spr.fillRect(s.x, s.y, fillW, s.h, TFT_GREEN);
+    dest.fillRect(s.x, s.y, fillW, s.h, TFT_GREEN);
 
     // Knob
     int knobX = s.x + fillW;
-    spr.fillRect(knobX - 4, s.y - 4, 8, s.h + 8, TFT_WHITE);
+    dest.fillRect(knobX - 4, s.y - 4, 8, s.h + 8, TFT_WHITE);
 
     // Value text
     char valStr[12];
     snprintf(valStr, sizeof(valStr), "%.2f", s.value);
-    spr.drawString(valStr, s.x + s.w + 16, s.y - 2, &DejaVu18);
+    dest.drawString(valStr, s.x + s.w + 16, s.y - 2, &DejaVu18);
 }
 
 bool updateSliderFromTouch(Slider &s, int tx, int ty, float &valToWrite)
@@ -84,6 +83,7 @@ bool updateSliderFromTouch(Slider &s, int tx, int ty, float &valToWrite)
 
 void drawAllUI()
 {
+    uiSprite.clear(TFT_DARKGREY);
     uiSprite.setTextDatum(TL_DATUM);
     uiSprite.setTextColor(TFT_WHITE);
     uiSprite.drawString("Flocking", 20, 40, &DejaVu40);
@@ -95,12 +95,23 @@ void drawAllUI()
     drawSlider(uiSprite, cohSlider);
     drawButton(uiSprite, clearButton);
     drawButton(uiSprite, resetButton);
+    uiSprite.pushSprite(480, 0);
 }
 
 inline bool hitButton(const Button &b, int x, int y)
 {
     return (x >= b.x && x <= b.x + b.w &&
             y >= b.y && y <= b.y + b.h);
+}
+
+void takeScreenShot()
+{
+    ScreenShot sShot;
+    String error;
+    bool success = sShot.saveBMP("/screenshot.bmp", gfx, SD, error);
+    gfx.setTextDatum(CC_DATUM);
+    gfx.fillRect(480, 0, 320, 40, TFT_BLACK);
+    gfx.drawCenterString(success ? "Screenshot saved" : error, 480 + 160, 20 - (DejaVu12.yAdvance / 2), &DejaVu12);
 }
 
 void handleTouch(lgfx::touch_point_t &tp)
@@ -122,7 +133,7 @@ void handleTouch(lgfx::touch_point_t &tp)
 
         if (hitButton(clearButton, uiTx, uiTy))
         {
-            swarm.clear(); // remove all boids
+            swarm.clear();
             changed = true;
         }
         else if (hitButton(resetButton, uiTx, uiTy))
@@ -134,21 +145,7 @@ void handleTouch(lgfx::touch_point_t &tp)
             changed = true;
         }
         else if (uiTy < 40)
-        {
-            ScreenShot sShot;
-            String error;
-            gfx.setTextDatum(CC_DATUM);
-            if (!sShot.saveBMP("/screenshot.bmp", gfx, SD, error))
-            {
-                gfx.fillRect(480, 0, 320, 40, TFT_BLACK);
-                gfx.drawCenterString(error, 480 + 160, 20, &DejaVu12);
-            }
-            else
-            {
-                gfx.fillRect(480, 0, 320, 40, TFT_BLACK);
-                gfx.drawCenterString("Screenshot saved!", 480 + 160, 20, &DejaVu12);
-            }
-        }
+            takeScreenShot();
     }
 
     if (changed)
@@ -170,7 +167,7 @@ void setup()
         while (true)
             delay(100);
     }
-
+/*
     if (!sdStarted)
     {
         gfx.drawCenterString("Could not mount SD. Tap to continue.", gfx.width() / 2, gfx.height() / 2, &DejaVu18);
@@ -179,7 +176,7 @@ void setup()
         while (!gfx.getTouch(&tp))
             delay(10);
     }
-
+*/
     simSprite.setPsram(true);
     simSprite.createSprite(480, 480);
 
@@ -220,9 +217,7 @@ void loop()
 
     if (uiDirty)
     {
-        uiSprite.clear(TFT_DARKGREY);
         drawAllUI();
-        uiSprite.pushSprite(480, 0);
         uiDirty = false;
     }
 }

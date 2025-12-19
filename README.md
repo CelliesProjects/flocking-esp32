@@ -37,7 +37,7 @@ Despite the simplicity of these rules, the group exhibits complex, lifelike moti
 ## Hardware
 
 Tested on:
-- **ESP32-S3** on a 800×480 [8048S070 RGB panel](https://esp3d.io/ESP3D-TFT/Version_1.X/hardware/esp32-s3/sunton-70-8048/)
+- ESP32-S3 on a 800×480 [8048S070 RGB panel](https://esp3d.io/ESP3D-TFT/Version_1.X/hardware/esp32-s3/sunton-70-8048/)
 - Capacitive touch
 
 ---
@@ -47,31 +47,6 @@ Tested on:
 - PlatformIO
 - Arduino framework (ESP32)
 - LovyanGFX
-
----
-
-## Controls
-
-| Action | Description |
-|------|-------------|
-| Touch simulation area | Add a boid |
-| Separation slider | Adjust personal space force |
-| Alignment slider | Adjust heading matching |
-| Cohesion slider | Adjust group attraction |
-| Clear Boids | Remove all boids |
-| Reset Simulation | Reset to initial state |
-
----
-
-## Attribution
-
-This project is inspired by the Processing example:
-
-> *Flocking*  
-> https://github.com/processing/processing-examples/tree/main/Topics/Simulate/Flocking  
-
-The original idea and behavior model come from:
-- Craig Reynolds — *“Flocks, Herds, and Schools: A Distributed Behavioral Model”*
 
 ---
 
